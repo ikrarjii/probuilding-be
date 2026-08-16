@@ -16,6 +16,7 @@ class TicketDelivery extends Model
     protected $guarded = [];
 
     protected $hidden = [
+        'recipient_reference',
         'idempotency_key',
         'provider_message_id',
         'last_error',

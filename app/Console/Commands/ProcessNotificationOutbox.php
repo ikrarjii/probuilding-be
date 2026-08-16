@@ -9,7 +9,7 @@ class ProcessNotificationOutbox extends Command
 {
     protected $signature = 'notifications:process {--limit=50 : Maximum number of messages to process}';
 
-    protected $description = 'Process pending registration email and WhatsApp notifications';
+    protected $description = 'Process pending registration WhatsApp notifications';
 
     public function handle(NotificationOutboxProcessor $processor): int
     {

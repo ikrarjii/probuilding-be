@@ -2,7 +2,6 @@
 
 namespace App\Services\Notifications;
 
-use App\Contracts\Notifications\EmailProvider;
 use App\Contracts\Notifications\WhatsAppProvider;
 use App\Enums\DeliveryStatus;
 use App\Enums\NotificationChannel;
@@ -13,7 +12,6 @@ use Throwable;
 class NotificationDeliveryService
 {
     public function __construct(
-        private readonly EmailProvider $emailProvider,
         private readonly WhatsAppProvider $whatsAppProvider,
         private readonly RegistrationNotificationFactory $notificationFactory,
     ) {}
@@ -38,14 +36,9 @@ class NotificationDeliveryService
         ])->save();
 
         try {
-            $result = match ($delivery->channel) {
-                NotificationChannel::Email => $this->emailProvider->send(
-                    $this->notificationFactory->email($delivery->registration, $delivery->idempotency_key)
-                ),
-                NotificationChannel::WhatsApp => $this->whatsAppProvider->send(
-                    $this->notificationFactory->whatsapp($delivery->registration, $delivery->idempotency_key)
-                ),
-            };
+            $result = $this->whatsAppProvider->send(
+                $this->notificationFactory->whatsapp($delivery->registration, $delivery->idempotency_key)
+            );
 
             $delivery->forceFill([
                 'provider' => $result->provider,
@@ -76,10 +69,7 @@ class NotificationDeliveryService
 
     private function configuredProviderName(NotificationChannel $channel): string
     {
-        $driver = match ($channel) {
-            NotificationChannel::Email => config('notifications.email.driver', 'disabled'),
-            NotificationChannel::WhatsApp => config('notifications.whatsapp.driver', 'disabled'),
-        };
+        $driver = config('notifications.whatsapp.driver', 'disabled');
 
         return mb_substr((string) $driver, 0, 80);
     }

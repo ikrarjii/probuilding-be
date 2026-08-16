@@ -11,7 +11,6 @@ final readonly class RegistrationConfirmation
     public function __construct(
         public string $registrationId,
         public string $participantName,
-        public string $email,
         public string $whatsapp,
         public string $eventName,
         public string $registrationNumber,

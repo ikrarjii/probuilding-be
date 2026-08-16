@@ -16,10 +16,7 @@ class CreateRegistrationNotifications
      */
     public function handle(Registration $registration): array
     {
-        return array_map(
-            fn (NotificationChannel $channel) => $this->create($registration, $channel),
-            NotificationChannel::cases(),
-        );
+        return [$this->create($registration, NotificationChannel::WhatsApp)];
     }
 
     private function create(Registration $registration, NotificationChannel $channel): TicketDelivery
@@ -34,11 +31,18 @@ class CreateRegistrationNotifications
                 'notification_type' => $type->value,
             ],
             [
+                'recipient_reference' => $registration->whatsapp_e164,
                 'idempotency_key' => $idempotencyKey,
                 'status' => DeliveryStatus::Pending->value,
                 'next_attempt_at' => now(),
             ],
         );
+
+        if ($delivery->recipient_reference !== $registration->whatsapp_e164) {
+            $delivery->forceFill([
+                'recipient_reference' => $registration->whatsapp_e164,
+            ])->save();
+        }
 
         OutboxMessage::firstOrCreate(
             ['deduplication_key' => hash('sha256', "notification.delivery_requested|{$delivery->id}")],

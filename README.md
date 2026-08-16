@@ -21,13 +21,13 @@ The create response includes the registration number, individual talkshow outcom
 - `talkshow_attendances` is independent of event check-in and stores any Super Admin prerequisite override.
 - `roles`, `permissions`, and `event_user_assignments` provide global and event-scoped access boundaries.
 - `audit_logs` records sensitive staff actions.
-- `outbox_messages` and `ticket_deliveries` provide reliable, channel-separated, idempotent notification delivery.
+- `outbox_messages` and `ticket_deliveries` provide reliable, idempotent WhatsApp notification delivery.
 
 Database uniqueness constraints enforce event-scoped WhatsApp registration, event/participant registration, registration number, QR/e-ticket hash, idempotency key, daily check-in, and talkshow attendance invariants.
 
 ## Configuration
 
-Copy `.env.example` to `.env`, generate `APP_KEY`, and configure PostgreSQL. The safe default email and WhatsApp drivers are mocks that never contact external services. Production rejects mock drivers. Email can use the provider-neutral Laravel Mail adapter; WhatsApp remains disabled in production until a vendor adapter is selected.
+Copy `.env.example` to `.env`, generate `APP_KEY`, and configure PostgreSQL. The safe default WhatsApp driver is a mock that writes to a local log and never contacts an external service. Production rejects the mock driver. WhatsApp remains disabled in production until a vendor adapter is selected.
 
 Set `PUBLIC_WEB_URL` to the participant-facing website origin (`http://localhost:5173` locally and HTTPS in production). Phase 2 adds `endroid/qr-code` for vector QR output and `dompdf/dompdf` for PDF rendering. PHP DOM and SimpleXML are required; GD is not required because QR Codes are rendered as SVG.
 

@@ -79,8 +79,8 @@ class PublicRegistrationTest extends TestCase
         $this->assertDatabaseCount('participants', 1);
         $this->assertDatabaseCount('registrations', 1);
         $this->assertDatabaseCount('registration_talkshows', 2);
-        $this->assertDatabaseCount('ticket_deliveries', 2);
-        $this->assertDatabaseCount('outbox_messages', 3);
+        $this->assertDatabaseCount('ticket_deliveries', 1);
+        $this->assertDatabaseCount('outbox_messages', 2);
     }
 
     public function test_email_can_be_shared_but_whatsapp_is_unique_within_an_event(): void
