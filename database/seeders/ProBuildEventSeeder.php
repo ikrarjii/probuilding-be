@@ -45,10 +45,10 @@ class ProBuildEventSeeder extends Seeder
             ['date' => '2026-09-27', 'label' => 'Hari 4', 'sort_order' => 4],
         ])->mapWithKeys(function (array $day) use ($event) {
             $model = EventDay::updateOrCreate(
-                ['event_id' => $event->id, 'event_date' => $day['date']],
+                ['event_id' => $event->id, 'sort_order' => $day['sort_order']],
                 [
+                    'event_date' => $day['date'],
                     'label' => $day['label'],
-                    'sort_order' => $day['sort_order'],
                     'check_in_starts_at' => null,
                     'check_in_ends_at' => null,
                 ]
