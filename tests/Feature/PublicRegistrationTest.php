@@ -49,6 +49,16 @@ class PublicRegistrationTest extends TestCase
             ->assertJsonPath('data.talkshows.0.availability', 'available');
     }
 
+    public function test_missing_registration_event_returns_a_safe_json_error(): void
+    {
+        $this->getJson('/api/v1/public/events/missing-event/registration')
+            ->assertNotFound()
+            ->assertExactJson([
+                'message' => 'Informasi event registrasi belum tersedia.',
+            ])
+            ->assertDontSee('App\\Models\\Event');
+    }
+
     public function test_full_name_whatsapp_and_email_are_required(): void
     {
         $this->postRegistration([])
