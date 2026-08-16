@@ -21,6 +21,10 @@ class EventStaffAuthorizer
             return;
         }
 
+        if (! $actor->hasAnyRole($allowedAssignedRoles)) {
+            throw new AuthorizationException('This user does not have the required operational role.');
+        }
+
         $isAssigned = DB::table('event_user_assignments')
             ->join('roles', 'roles.id', '=', 'event_user_assignments.role_id')
             ->where('event_user_assignments.event_id', $eventId)

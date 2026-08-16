@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RegistrationSource;
+use App\Enums\RegistrationStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,7 +28,9 @@ class Registration extends Model
     {
         return [
             'registered_at' => 'datetime',
+            'confirmed_at' => 'datetime',
             'registration_source' => RegistrationSource::class,
+            'status' => RegistrationStatus::class,
             'talkshow_selection_result' => 'array',
         ];
     }
@@ -55,5 +58,10 @@ class Registration extends Model
     public function ticketDeliveries(): HasMany
     {
         return $this->hasMany(TicketDelivery::class);
+    }
+
+    public function talkshowAttendances(): HasMany
+    {
+        return $this->hasMany(TalkshowAttendance::class);
     }
 }

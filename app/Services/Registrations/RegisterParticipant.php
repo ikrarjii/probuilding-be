@@ -4,6 +4,7 @@ namespace App\Services\Registrations;
 
 use App\Data\RegistrationOutcome;
 use App\Enums\RegistrationSource;
+use App\Enums\RegistrationStatus;
 use App\Enums\TalkshowSelectionStatus;
 use App\Exceptions\DuplicateRegistrationException;
 use App\Exceptions\IdempotencyConflictException;
@@ -111,6 +112,7 @@ class RegisterParticipant
                     'whatsapp_e164' => $data['whatsapp'],
                     'email' => $data['email'],
                     'registration_source' => RegistrationSource::Public,
+                    'status' => RegistrationStatus::Confirmed,
                     'idempotency_key' => $idempotencyKey,
                     'request_fingerprint' => $fingerprint,
                     'qr_token_hash' => $ticketIdentity['hash'],
@@ -118,6 +120,7 @@ class RegisterParticipant
                     'ticket_access_token_hash' => $ticketIdentity['hash'],
                     'ticket_access_token_encrypted' => $ticketIdentity['encrypted'],
                     'registered_at' => now(),
+                    'confirmed_at' => now(),
                 ]);
 
                 $results = [];

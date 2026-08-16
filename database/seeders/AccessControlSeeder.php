@@ -11,9 +11,11 @@ class AccessControlSeeder extends Seeder
     public function run(): void
     {
         $permissions = collect([
+            'events.view' => 'View authorized events',
             'events.manage' => 'Manage events',
             'talkshows.manage' => 'Manage talkshows',
             'participants.view' => 'View participant personal data',
+            'registrations.view' => 'View registrations',
             'registrations.manage' => 'Manage registrations',
             'checkins.create' => 'Record daily event check-ins',
             'attendance.create' => 'Record talkshow attendance',
@@ -21,7 +23,9 @@ class AccessControlSeeder extends Seeder
             'statistics.view' => 'View event statistics',
             'reports.export' => 'Export authorized reports',
             'users.manage' => 'Manage staff accounts',
+            'assignments.manage' => 'Manage event staff assignments',
             'permissions.manage' => 'Manage roles and permissions',
+            'audit_logs.view' => 'View audit logs',
         ])->mapWithKeys(function (string $name, string $slug) {
             $permission = Permission::updateOrCreate(['slug' => $slug], ['name' => $name]);
 
@@ -40,16 +44,15 @@ class AccessControlSeeder extends Seeder
 
         $panitia->belongsToMany(Permission::class, 'role_permissions')
             ->sync($permissions->only([
+                'events.view',
                 'participants.view',
-                'registrations.manage',
+                'registrations.view',
                 'checkins.create',
                 'attendance.create',
-                'waitlists.promote',
                 'statistics.view',
-                'reports.export',
             ])->pluck('id'));
 
         $vendor->belongsToMany(Permission::class, 'role_permissions')
-            ->sync([$permissions->get('statistics.view')->id]);
+            ->sync($permissions->only(['events.view', 'statistics.view'])->pluck('id'));
     }
 }

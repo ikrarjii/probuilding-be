@@ -11,6 +11,20 @@ Laravel 12 API for ProBuild INTIM participant registration and attendance data.
 
 The create response includes the registration number, individual talkshow outcomes (`confirmed`, `waitlisted`, or `unavailable`), and the canonical e-ticket URL. Its 256-bit opaque token is also the persistent QR identity. The response excludes all internal token hashes.
 
+## Staff access
+
+Staff login is available at `POST /api/v1/staff/auth/login`. Protected requests use the returned opaque bearer token. Only a SHA-256 hash of that token is stored, tokens expire, logout revokes the current token, and deactivating a user revokes all of that user's active tokens.
+
+The first Super Admin must be created interactively after roles have been seeded:
+
+```bash
+php artisan staff:create-super-admin --name="Operations Admin" --email="admin@example.com"
+```
+
+The command prompts securely for the password and intentionally has no password command-line argument. Subsequent accounts and role changes are managed through the authenticated Super Admin API or `/staff` web workspace.
+
+Panitia event access is always checked against an active `event_user_assignments` record. Vendor access is limited to aggregate statistics and never passes through participant serializers or queries.
+
 ## Domain model
 
 - `participants` holds participant contact/profile data.
@@ -37,11 +51,39 @@ Set `PUBLIC_WEB_URL` to the participant-facing website origin (`http://localhost
 composer install
 php artisan key:generate
 php artisan migrate --seed
+php artisan staff:create-super-admin --name="Operations Admin" --email="admin@example.com"
 php artisan serve
 php artisan notifications:process
 php artisan test
 vendor/bin/pint --test
 ```
+
+## Production preflight
+
+Do not copy the local `.env` to production. At minimum, the server environment must use:
+
+```dotenv
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://backend.probuildintim.com
+PUBLIC_WEB_URL=https://www.probuildintim.com
+CORS_ALLOWED_ORIGINS=https://probuildintim.com,https://www.probuildintim.com
+LOG_LEVEL=warning
+DB_CONNECTION=mysql
+```
+
+Configure a non-empty `APP_KEY` and the real database credentials separately. Never commit them. Before every production migration, take and verify a database backup, then run:
+
+```bash
+php artisan config:clear
+php artisan app:production-check
+php artisan migrate:status
+php artisan migrate --force
+php artisan db:seed --class=AccessControlSeeder --force
+php artisan optimize
+```
+
+Do not run the complete `DatabaseSeeder` against an already configured production event because the event fixture seeder updates event and talkshow setup values. If migration `2026_08_16_000700_make_phase_three_whatsapp_only` is still pending, note that it intentionally removes legacy email delivery/outbox rows as part of the WhatsApp-only transition; the backup is mandatory before applying it.
 
 The seed creates the event, four event-day records, ten published talkshows, roles, and permissions. It does not create default staff credentials. Talkshow capacity and waitlist settings must be reviewed with the organizer before production registration opens.
 

@@ -31,4 +31,9 @@ class EventDay extends Model
     {
         return $this->hasMany(Talkshow::class);
     }
+
+    public function dailyCheckins(): HasMany
+    {
+        return $this->hasMany(DailyEventCheckin::class);
+    }
 }

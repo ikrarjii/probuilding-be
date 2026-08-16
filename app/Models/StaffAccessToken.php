@@ -6,24 +6,25 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AuditLog extends Model
+class StaffAccessToken extends Model
 {
     use HasUuids;
 
-    public $timestamps = false;
-
     protected $guarded = [];
+
+    protected $hidden = ['token_hash'];
 
     protected function casts(): array
     {
         return [
-            'metadata' => 'array',
-            'created_at' => 'datetime',
+            'last_used_at' => 'datetime',
+            'expires_at' => 'datetime',
+            'revoked_at' => 'datetime',
         ];
     }
 
-    public function actor(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'actor_user_id');
+        return $this->belongsTo(User::class);
     }
 }

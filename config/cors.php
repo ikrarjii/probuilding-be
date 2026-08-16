@@ -10,10 +10,10 @@ $allowedOrigins = array_values(array_filter(array_map(
 
 return [
     'paths' => ['api/*'],
-    'allowed_methods' => ['GET', 'POST', 'OPTIONS'],
+    'allowed_methods' => ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     'allowed_origins' => $allowedOrigins,
     'allowed_origins_patterns' => [],
-    'allowed_headers' => ['Accept', 'Content-Type', 'Idempotency-Key'],
+    'allowed_headers' => ['Accept', 'Authorization', 'Content-Type', 'Idempotency-Key'],
     'exposed_headers' => [],
     'max_age' => 600,
     'supports_credentials' => false,

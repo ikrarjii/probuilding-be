@@ -4,10 +4,14 @@ use App\Exceptions\DuplicateRegistrationException;
 use App\Exceptions\IdempotencyConflictException;
 use App\Exceptions\InvalidETicketTokenException;
 use App\Exceptions\TicketGenerationException;
+use App\Http\Middleware\AuthenticateStaffToken;
+use App\Http\Middleware\RequirePermission;
+use App\Http\Middleware\RequireRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,7 +21,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'staff.auth' => AuthenticateStaffToken::class,
+            'role' => RequireRole::class,
+            'permission' => RequirePermission::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (DuplicateRegistrationException $exception, Request $request) {
@@ -53,5 +61,18 @@ return Application::configure(basePath: dirname(__DIR__))
                     'message' => $exception->getMessage(),
                 ], 503);
             }
+        });
+
+        $exceptions->respond(function (Response $response) {
+            if (config('app.env') === 'production'
+                && request()->is('api/*')
+                && $response->getStatusCode() >= 500) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan tak terduga. Silakan coba lagi nanti.',
+                ], $response->getStatusCode());
+            }
+
+            return $response;
         });
     })->create();

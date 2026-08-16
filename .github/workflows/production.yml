@@ -9,8 +9,11 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
+    concurrency:
+      group: probuild-backend-production
+      cancel-in-progress: false
     steps:
-      - name: Connect SSH and Git Pull
+      - name: Deploy backend safely over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -18,5 +21,19 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd /home/u218580678/domains/backend.probuildintim.com/probuilding-be
-            git pull origin main
+            set -eu
+
+            DEPLOY_PATH="/home/u218580678/domains/backend.probuildintim.com/probuilding-be"
+            test -d "$DEPLOY_PATH/.git"
+            cd "$DEPLOY_PATH"
+            test "$(git rev-parse --abbrev-ref HEAD)" = "main"
+
+            git pull --ff-only origin main
+            composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+            php artisan config:clear
+            php artisan app:production-check
+            php artisan migrate --force
+            php artisan db:seed --class=AccessControlSeeder --force
+            php artisan optimize
+            php artisan queue:restart

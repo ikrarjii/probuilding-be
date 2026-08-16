@@ -48,6 +48,11 @@ class Talkshow extends Model
         return $this->selections()->where('status', TalkshowSelectionStatus::Confirmed->value);
     }
 
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(TalkshowAttendance::class);
+    }
+
     public function isRegistrationOpen(): bool
     {
         $now = now();

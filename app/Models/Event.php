@@ -44,6 +44,11 @@ class Event extends Model
         return $this->hasMany(Registration::class);
     }
 
+    public function staffAssignments(): HasMany
+    {
+        return $this->hasMany(EventUserAssignment::class);
+    }
+
     public function isRegistrationOpen(): bool
     {
         $now = now();

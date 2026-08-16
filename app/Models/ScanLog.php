@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AuditLog extends Model
+class ScanLog extends Model
 {
     use HasUuids;
 
@@ -18,12 +17,7 @@ class AuditLog extends Model
     {
         return [
             'metadata' => 'array',
-            'created_at' => 'datetime',
+            'scanned_at' => 'datetime',
         ];
-    }
-
-    public function actor(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'actor_user_id');
     }
 }
